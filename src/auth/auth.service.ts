@@ -25,9 +25,7 @@ export class AuthService {
   }
 
   public getCookieWithJwtRefreshToken(userId: number) {
-    const payload = { userId };
-    console.log();
-    
+    const payload = { userId };    
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
       expiresIn: `${this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME')}`
