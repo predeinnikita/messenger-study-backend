@@ -17,12 +17,12 @@ export class UsersService {
       {
         userId: 1,
         username: 'npredein',
-        password: 'secret',
+        password: '5ebe2294ecd0e0f08eab7690d2a6ee69',
       },
       {
         userId: 2,
         username: 'admin',
-        password: 'admin',
+        password: 'f6fdffe48c908deb0f4c3bd36c032e72',
       }
     ];
   }
