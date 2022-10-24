@@ -27,7 +27,7 @@ export class UsersService {
       {
         userId: 1,
         username: 'npredein',
-        password: '5ebe2294ecd0e0f08eab7690d2a6ee69',
+        password: 'd98221bb33cb9193e00fc7ac1e0e02a9',
       },
       {
         userId: 2,
