@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 export class User {
@@ -6,6 +6,16 @@ export class User {
   username: string;
   password?: string;
   currentHashedRefreshToken?: string;
+
+  constructor(username?: string, password?: string) {
+    if (username) {
+      this.username = username;
+    }
+    if (password) {
+      this.password = password;
+    }
+  }
+
 }
 
 @Injectable()
@@ -53,6 +63,13 @@ export class UsersService {
     if (isRefreshTokenMatching) {
       return user;
     }
+  }
+
+  async createAccount(username: string, password: string) {
+    if (this.users.find(user => user.username === username)) {
+      throw new BadRequestException('Такой никнейм уже существует');
+    }
+    this.users.push(new User(username, password));
   }
 
 }

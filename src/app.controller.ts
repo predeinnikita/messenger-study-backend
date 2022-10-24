@@ -8,44 +8,16 @@ import { User, UsersService } from './users/users.service';
 
 @Controller()
 export class AppController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly usersService: UsersService
-  ) {}
+  constructor() {}
 
   @Get()
   async hello() {
     return 'hello';
   }
 
-  @UseGuards(LocalAuthGuard)
-  @Post('auth/login')
-  async login(@Request() req) {
-    const user: User = req.user;    
-    const refreshTokenCookie = this.authService.getCookieWithJwtRefreshToken(user.userId);
-    await this.usersService.setCurrentRefreshToken(refreshTokenCookie.token, user.userId);
-    req.res.setHeader('Set-Cookie', [ refreshTokenCookie.cookie ]);
-
-    return this.authService.login(req.user);
-  }
-
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {    
     return req.user;
-  }
-
-  @UseGuards(JwtRefreshGuard)
-  @Get('auth/refresh')
-  refresh(@Request()request) {
-    const accessToken = this.authService.getJwtAccessToken(request.user);
-    
-    return accessToken;
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('auth/check-token')
-  checkToken() {
-    return HttpStatus.OK;
   }
 }

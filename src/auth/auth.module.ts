@@ -4,7 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { UsersModule } from '../users/users.module';
 import { AuthService } from './auth.service';
-import JwtRefreshGuard from './guards/jwt-auth-refresh.guard';
+import { AuthController } from './controllers/auth.controller';
 import { JwtRefreshTokenStrategy } from './strategies/jwt-refresh.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -28,6 +28,7 @@ const registerJwtModule = async (configService: ConfigService) => ({
     })
     
   ],
+  controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy, JwtRefreshTokenStrategy],
   exports: [AuthService],
 })
