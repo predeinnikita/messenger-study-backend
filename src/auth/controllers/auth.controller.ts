@@ -46,7 +46,7 @@ export class AuthController {
 
   @Post('logout')
   async logout(@Request() req) {
-    req.res.setHeader('Set-Cookie', [ 'token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT' ]);
+    req.res.setHeader('Set-Cookie', [ 'Refresh=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT' ]);
 
     return HttpStatus.OK;
   }

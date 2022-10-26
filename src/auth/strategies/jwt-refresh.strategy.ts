@@ -13,7 +13,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-ref
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: express.Request) => {
+        (request: express.Request) => {          
           return request.headers.cookie?.split('=')[1];
         }
       ]),
@@ -24,7 +24,6 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-ref
   
   async validate(request: express.Request, payload) {
     const refreshToken = request.headers.cookie.split('=')[1];
-    console.log(request);
     return this.usersService.getUserIfRefreshTokenMatches(refreshToken, payload.userId);
   }
 }
