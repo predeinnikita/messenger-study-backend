@@ -1,17 +1,13 @@
-import { Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards } from '@nestjs/common';
-import { ok } from 'assert';
-import { AuthService } from './auth/auth.service';
-import JwtRefreshGuard from './auth/guards/jwt-auth-refresh.guard';
+import { Controller, Get, Request, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
-import { LocalAuthGuard } from './auth/guards/local-auth.guard';
-import { User, UsersService } from './users/users.service';
 
 @Controller()
 export class AppController {
-  constructor() {}
+  constructor(
+  ) {}
 
   @Get()
-  async hello() {
+  async hello() { 
     return 'hello';
   }
 

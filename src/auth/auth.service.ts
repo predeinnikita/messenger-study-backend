@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { User, UsersService } from '../users/users.service';
+import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { UserEntity } from 'src/entities/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
@@ -20,12 +21,12 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User) {
+  async login(user: UserEntity) {
     return this.getJwtAccessToken(user);
   }
 
-  public getCookieWithJwtRefreshToken(userId: number) {
-    const payload = { userId };    
+  public getCookieWithJwtRefreshToken(id: number) {
+    const payload = { id };    
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
       expiresIn: `${this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME')}`
@@ -37,18 +38,11 @@ export class AuthService {
     }
   }
 
-  public getJwtAccessToken(user: User) {
-    const payload = { username: user.username, userId: user.userId };
+  public getJwtAccessToken(user: UserEntity) {
+    const payload = { username: user.username, id: user.id };
     const access_token = this.jwtService.sign(payload);
     return {
       access_token: access_token
     };
-
-    // const payload: TokenPayload = { userId };
-    // const token = this.jwtService.sign(payload, {
-    //   secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
-    //   expiresIn: `${this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME')}s`
-    // });
-    // return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME')}`;
   }
 }

@@ -1,5 +1,6 @@
 import { Controller, Get, HttpCode, HttpStatus, Param, Post, Request, UseGuards } from '@nestjs/common';
-import { UsersService, User } from 'src/users/users.service';
+import { UserEntity } from 'src/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 import { AuthService } from '../auth.service';
 import JwtRefreshGuard from '../guards/jwt-auth-refresh.guard';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
@@ -15,9 +16,9 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
-    const user: User = req.user;    
-    const refreshTokenCookie = this.authService.getCookieWithJwtRefreshToken(user.userId);
-    await this.usersService.setCurrentRefreshToken(refreshTokenCookie.token, user.userId);
+    const user: UserEntity = req.user;    
+    const refreshTokenCookie = this.authService.getCookieWithJwtRefreshToken(user.id);
+    await this.usersService.setCurrentRefreshToken(refreshTokenCookie.token, user.id);
     req.res.setHeader('Set-Cookie', [ refreshTokenCookie.cookie ]);
 
     return this.authService.login(req.user);

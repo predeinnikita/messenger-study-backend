@@ -1,55 +1,31 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-
-export class User {
-  userId: number;
-  username: string;
-  password?: string;
-  currentHashedRefreshToken?: string;
-
-  constructor(username?: string, password?: string) {
-    if (username) {
-      this.username = username;
-    }
-    if (password) {
-      this.password = password;
-    }
-  }
-
-}
+import { UserEntity } from 'src/entities/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
-  private readonly users: User[];
-
-  constructor() {
-    this.users = [
-      {
-        userId: 1,
-        username: 'npredein',
-        password: 'd98221bb33cb9193e00fc7ac1e0e02a9',
-      },
-      {
-        userId: 2,
-        username: 'admin',
-        password: 'f6fdffe48c908deb0f4c3bd36c032e72',
-      }
-    ];
+  constructor(
+    @InjectRepository(UserEntity)
+    private usersRepository: Repository<UserEntity>,
+  ) {
   }
 
-  async findById(id: number): Promise<User | undefined> {
-    return this.users.find(user => user.userId === id);
+  async findById(id: number): Promise<UserEntity | undefined> {
+    return this.usersRepository.findOneBy({ id });
   }
 
-  async findByUsername(username: string): Promise<User | undefined> {
-    return this.users.find(user => user.username === username)
+  async findByUsername(username: string): Promise<UserEntity | undefined> {
+    return this.usersRepository.findOneBy({ username })
   }
 
   async setCurrentRefreshToken(refreshToken: string, userId: number) {
     const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-    const user = this.users.find(user => user.userId === userId);
+    const user = await this.findById(userId);
     if (user) {
       user.currentHashedRefreshToken = currentHashedRefreshToken;
+      user.save();
     }
   }
 
@@ -66,10 +42,13 @@ export class UsersService {
   }
 
   async createAccount(username: string, password: string) {
-    if (this.users.find(user => user.username === username)) {
+    if (await this.usersRepository.findOneBy({ username })) {
       throw new BadRequestException('Такой никнейм уже существует');
     }
-    this.users.push(new User(username, password));
+    const newUser = new UserEntity();
+    newUser.username = username;
+    newUser.password = password;
+    newUser.save();
   }
 
 }
