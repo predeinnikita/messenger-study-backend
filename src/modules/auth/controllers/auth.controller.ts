@@ -1,6 +1,6 @@
 import { Controller, Get, HttpCode, HttpStatus, Param, Post, Request, UseGuards } from '@nestjs/common';
 import { UserEntity } from 'src/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from 'src/modules/users/users.service';
 import { AuthService } from '../auth.service';
 import JwtRefreshGuard from '../guards/jwt-auth-refresh.guard';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';

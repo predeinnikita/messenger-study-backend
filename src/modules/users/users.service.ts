@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from 'src/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -17,7 +17,11 @@ export class UsersService {
   }
 
   async findByUsername(username: string): Promise<UserEntity | undefined> {
-    return this.usersRepository.findOneBy({ username })
+    return this.usersRepository.findOneBy({ username });
+  }
+
+  async findUsersByUsername(username: string = ''): Promise<UserEntity[] | undefined> {
+    return this.usersRepository.findBy({ username });
   }
 
   async setCurrentRefreshToken(refreshToken: string, userId: number) {

@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { ChatEntity } from './chat.entity';
 
 @Entity()
 export class UserEntity extends BaseEntity {
@@ -9,7 +10,7 @@ export class UserEntity extends BaseEntity {
   username: string;
 
   @Column()
-  password: string;
+  password?: string;
 
   @Column({ default: ''})
   currentHashedRefreshToken?: string;
