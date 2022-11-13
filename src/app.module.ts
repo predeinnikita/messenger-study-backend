@@ -33,7 +33,7 @@ import { MessengerModule } from './modules/messenger/messenger.module';
   ],
   controllers: [AppController],
   providers: [
-      AppService,
+      AppService
   ],
 })
 export class AppModule {

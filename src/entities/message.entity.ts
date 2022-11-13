@@ -8,17 +8,17 @@ export class MessageEntity extends BaseEntity {
   id: number;
 
   @Column()
-  message: string;
+  text: string;
 
   @Column()
   date: Date;
-
-  @Column({ default: false})
-  isRead: boolean;
 
   @ManyToOne(() => ChatEntity, (chat) => chat.messages, { cascade: ['insert', 'update'] })
   chat: ChatEntity;
 
   @ManyToOne(() => UserEntity, { cascade: ['insert', 'update'] })
-  sender: UserEntity[];
+  sender: UserEntity;
+
+  @ManyToOne(() => UserEntity, { cascade: ['insert', 'update'] })
+  recipient: UserEntity;
 }

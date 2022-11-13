@@ -8,7 +8,7 @@ import { ChatsService } from './chats.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ChatEntity, MessageEntity]),
+    TypeOrmModule.forFeature([ChatEntity]),
     UsersModule
   ],
   controllers: [ChatsController],

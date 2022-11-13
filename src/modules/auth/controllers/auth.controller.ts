@@ -34,8 +34,10 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('check-token')
-  checkToken() {
-    return HttpStatus.OK;
+  checkToken(@Request()request) {
+    return {
+      userId: request.user.id
+    }
   }
 
   @Post('registration')
@@ -49,6 +51,8 @@ export class AuthController {
   async logout(@Request() req) {
     req.res.setHeader('Set-Cookie', [ 'Refresh=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT' ]);
 
-    return HttpStatus.OK;
+    return {
+      userId: req.user.id
+    }
   }
 }

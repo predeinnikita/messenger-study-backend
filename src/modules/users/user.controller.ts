@@ -10,10 +10,9 @@ export class UserController {
     ) {}
 
     @Get('find')
-    public async getUsers(@Query('username')username: string = ''): Promise<IUser[]> {
-        console.log(username);
-        
+    public async getUsers(@Query('username')username: string = ''): Promise<IUser[]> {        
         const userEntities = await this.usersService.findUsersByUsername(username);
+        
         return userEntities.map((user: UserEntity) => ({
             id: user.id,
             username: user.username
