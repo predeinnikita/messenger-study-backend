@@ -18,7 +18,6 @@ export class ChatsService {
   public async createChat(userId: number, otherUserId: number): Promise<void> {
     const firstUser = await this.userService.findById(userId);
     const secondUser = await this.userService.findById(otherUserId);
-    console.log(userId, otherUserId)
     if (userId == otherUserId) {
       throw new BadRequestException('Невозможно создать чат с самим собой!');
     }
@@ -41,6 +40,12 @@ export class ChatsService {
 
   public async getChats(userId: number): Promise<ChatEntity[]> {
     const chats = await this.chatsRepository.find({
+      relations: {
+        firstUser: {
+        },
+        secondUser: {
+        }
+      },
       where: [
         {
           firstUser: {
@@ -52,8 +57,22 @@ export class ChatsService {
             id: userId
           }
         }
-      ]
-    });    
+      ],
+      
+    });
+
+    //TODO: брать юзеров сразу без пароля и рефреш-токена
+    const cleanUser = (user: UserEntity) => {
+      return <UserEntity>{
+        id: user.id,
+        username: user.username
+      }
+    }
+
+    chats.forEach(chat => {
+      chat.firstUser = cleanUser(chat.firstUser);
+      chat.secondUser = cleanUser(chat.secondUser);
+    })
 
     return chats;
   }
@@ -62,7 +81,7 @@ export class ChatsService {
     await this.chatsRepository.delete({ id });
   }
 
-  private async chatBetweenUsersExists(firstUser: UserEntity, secondUser: UserEntity): Promise<boolean> {
+  public async getChatBetweenUsers(firstUser: UserEntity, secondUser: UserEntity): Promise<ChatEntity> {
     const chats = await this.chatsRepository.find({
       where: [
         {
@@ -83,8 +102,16 @@ export class ChatsService {
         }
       ]
     });
-    
-    return chats.length > 0;
+
+    if (chats.length === 0) {
+      throw new BadRequestException('Такого чата нет');
+    }
+
+    return chats[0];
+  }
+
+  private async chatBetweenUsersExists(firstUser: UserEntity, secondUser: UserEntity): Promise<boolean> {
+    return !!(await this.getChatBetweenUsers);
   }
 
 }

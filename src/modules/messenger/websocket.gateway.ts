@@ -29,19 +29,31 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
 
     @UseGuards(JwtAuthGuard)
     @SubscribeMessage('send:message:request')
-    public sendMessage(client: Socket, payload: IMessagePayload): void {
+    public async sendMessage(client: Socket, payload: IMessagePayload): Promise<void> {
+      console.log(payload);
+      
       const recipient = this._clients.find(client => client.userId === payload.recipientId);
-      this.messengerService.saveMessage(payload);
-      recipient.socket.send('send:message:response', {
-        ...payload
+      const message = await this.messengerService.saveMessage(payload);
+
+      if (recipient) {
+        console.log(recipient.userId);
+        recipient.socket.emit('send:message:response', {
+          message
+        });
+      }
+      client.emit('send:message:response', {
+        message
       });
     }
 
     @UseGuards(JwtAuthGuard)
     @SubscribeMessage('get:message:request')
-    public getAllMessages(client: Socket, chatId: number): void {
-      client.send('get:message:response', {
-        result: this.messengerService.getAllMessages(chatId)
+    public async getAllMessages(client: Socket, payload: any): Promise<void> {
+      console.log(payload.chatId);
+      
+      const messages = await this.messengerService.getAllMessages(payload.chatId);
+      client.emit('get:message:response', {
+        result: messages.length > 0? messages: []
       })
     }
 
@@ -50,13 +62,14 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     }
 
     public handleDisconnect(client: Socket) {
-      console.log(`Client disconnected: ${client.id}`);   
+      console.log(`Client disconnected: ${client.id}`);
+      this._clients.splice(Number(client.handshake.query['userId']), 1)
     }
 
     @UseGuards(JwtAuthGuard)
     public handleConnection(client: Socket, ...args: any[]) {      
       console.log(`Client connected: ${client.id}`);
-      console.log(client.handshake.query.userId);
+      // console.log(client.handshake.query);
       this._clients.push({
         userId: Number(client.handshake.query['userId']),
         socket: client
@@ -67,7 +80,6 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
 export interface IMessagePayload {
   senderId: number,
   recipientId: number,
-  date: Date,
   text: string
 }
 
