@@ -41,7 +41,8 @@ export class MessengerService {
         }
       ],
       relations: {
-        sender: true
+        sender: true,
+        chat: true,
       },
       order: {
         date: {

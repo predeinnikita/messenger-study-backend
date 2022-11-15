@@ -111,7 +111,28 @@ export class ChatsService {
   }
 
   private async chatBetweenUsersExists(firstUser: UserEntity, secondUser: UserEntity): Promise<boolean> {
-    return !!(await this.getChatBetweenUsers);
+    const chatsCount = await this.chatsRepository.count({
+      where: [
+        {
+          firstUser: {
+            id: firstUser.id
+          },
+          secondUser: {
+            id: secondUser.id
+          }
+        }, 
+        {
+          firstUser: {
+            id: secondUser.id
+          },
+          secondUser: {
+            id: firstUser.id
+          }
+        }
+      ]
+    });
+
+    return chatsCount > 0;
   }
 
 }

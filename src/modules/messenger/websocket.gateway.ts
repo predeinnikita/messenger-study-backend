@@ -29,14 +29,11 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
 
     @UseGuards(JwtAuthGuard)
     @SubscribeMessage('send:message:request')
-    public async sendMessage(client: Socket, payload: IMessagePayload): Promise<void> {
-      console.log(payload);
-      
+    public async sendMessage(client: Socket, payload: IMessagePayload): Promise<void> {      
       const recipient = this._clients.find(client => client.userId === payload.recipientId);
       const message = await this.messengerService.saveMessage(payload);
 
       if (recipient) {
-        console.log(recipient.userId);
         recipient.socket.emit('send:message:response', {
           message
         });
@@ -48,9 +45,7 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
 
     @UseGuards(JwtAuthGuard)
     @SubscribeMessage('get:message:request')
-    public async getAllMessages(client: Socket, payload: any): Promise<void> {
-      console.log(payload.chatId);
-      
+    public async getAllMessages(client: Socket, payload: any): Promise<void> {      
       const messages = await this.messengerService.getAllMessages(payload.chatId);
       client.emit('get:message:response', {
         result: messages.length > 0? messages: []
@@ -61,19 +56,24 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
       console.log('Init');
     }
 
-    public handleDisconnect(client: Socket) {
-      console.log(`Client disconnected: ${client.id}`);
-      this._clients.splice(Number(client.handshake.query['userId']), 1)
+    public handleDisconnect(socket: Socket) {
+      const userId = Number(socket.handshake.query['userId']);
+      this._clients = this._clients.filter(client => client.userId !== userId)
     }
 
     @UseGuards(JwtAuthGuard)
-    public handleConnection(client: Socket, ...args: any[]) {      
+    public handleConnection(client: Socket, ...args: any[]) {   
       console.log(`Client connected: ${client.id}`);
-      // console.log(client.handshake.query);
-      this._clients.push({
-        userId: Number(client.handshake.query['userId']),
-        socket: client
-      });
+      const userId = Number(client.handshake.query['userId']);
+      const connectedClient = this._clients.find(client => client.userId === userId);
+      if (connectedClient) {
+        connectedClient.socket = client;
+      } else {
+        this._clients.push({
+          userId: userId,
+          socket: client
+        });
+      }
     }
 }
 
