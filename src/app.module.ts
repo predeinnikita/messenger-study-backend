@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
@@ -12,6 +12,16 @@ import { MessageEntity } from './entities/message.entity';
 import { ChatsModule } from './modules/chats/chats.module';
 import { MessengerModule } from './modules/messenger/messenger.module';
 
+const registerTypeOrmModule = async (configService: ConfigService) => ({
+  type: configService.get('TYPE_ORM'),
+  host: configService.get('HOST_ORM'),
+  port: configService.get('PORT_ORM'),
+  username: configService.get('USERNAME_ORM'),
+  password: configService.get('PASSWORD_ORM'),
+  database: configService.get('DATABASE_ORM'),
+  entities: [UserEntity, ChatEntity, MessageEntity],
+  synchronize: true,
+});
 
 @Module({
   imports: [
@@ -20,15 +30,10 @@ import { MessengerModule } from './modules/messenger/messenger.module';
     ChatsModule,
     MessengerModule,
     ConfigModule.forRoot({ isGlobal: true, expandVariables: true, }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'password',
-      database: 'messenger',
-      entities: [UserEntity, ChatEntity, MessageEntity],
-      synchronize: true,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: registerTypeOrmModule,
+      inject: [ ConfigService ]
     }),
   ],
   controllers: [AppController],
