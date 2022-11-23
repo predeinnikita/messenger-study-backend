@@ -1,6 +1,7 @@
 import { Controller, Param, Post, UseGuards, Request, Query, BadRequestException, HttpCode, HttpStatus, Get } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ChatEntity } from "src/entities/chat.entity";
+import ChatModel from "src/models/chat.model";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { ChatsService } from "./chats.service";
 
@@ -30,7 +31,7 @@ export class ChatsController {
 
   @Get('my')
   @UseGuards(JwtAuthGuard)
-  public async getMyChats(@Request()request): Promise<ChatEntity[]> {
+  public async getMyChats(@Request()request): Promise<ChatModel[]> {
     return this.chatsService.getChats(request.user.id);
   }
 }

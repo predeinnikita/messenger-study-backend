@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MessageEntity } from '../../entities/message.entity';
@@ -31,6 +31,25 @@ export class MessengerService {
     return message.save();
   }
 
+  public async getLastMessage(chatId: number): Promise<MessageEntity> {
+    const lastMessage = await this.messagesRepository.find({
+      where: [
+        {
+          chat: {
+            id: chatId
+          }
+        }
+      ],
+      take: 1
+    })
+
+    if (lastMessage.length === 0) {
+      return lastMessage[0];
+    }
+
+    throw new InternalServerErrorException();
+  }
+
   public async getAllMessages(chatId: number): Promise<MessageEntity[]> {
     const messages =  await this.messagesRepository.find({ 
       where: [
@@ -51,10 +70,7 @@ export class MessengerService {
       }
     });
 
-    console.log(chatId);
-
     return messages;
-    
   }
 
 }

@@ -2,7 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatEntity } from 'src/entities/chat.entity';
 import { UserEntity } from 'src/entities/user.entity';
+import ChatModel from 'src/models/chat.model';
+import MessageModel from 'src/models/message.model';
 import { Like, Repository } from 'typeorm';
+import { MessengerService } from '../messenger/messenger.service';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
@@ -34,16 +37,16 @@ export class ChatsService {
     chat.secondUser = secondUser;
 
     this.chatsRepository.save(chat);
-
-    // chat.save();
   }
 
-  public async getChats(userId: number): Promise<ChatEntity[]> {
+  public async getChats(userId: number): Promise<ChatModel[]> {
     const chats = await this.chatsRepository.find({
       relations: {
         firstUser: {
         },
         secondUser: {
+        },
+        messages: {
         }
       },
       where: [
@@ -58,23 +61,9 @@ export class ChatsService {
           }
         }
       ],
-      
     });
 
-    //TODO: брать юзеров сразу без пароля и рефреш-токена
-    const cleanUser = (user: UserEntity) => {
-      return <UserEntity>{
-        id: user.id,
-        username: user.username
-      }
-    }
-
-    chats.forEach(chat => {
-      chat.firstUser = cleanUser(chat.firstUser);
-      chat.secondUser = cleanUser(chat.secondUser);
-    })
-
-    return chats;
+    return chats.map(chat => new ChatModel(chat));
   }
 
   public async deleteChat(id: number): Promise<void> {

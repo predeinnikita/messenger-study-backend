@@ -10,6 +10,7 @@ import { UseGuards } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MessengerService } from './messenger.service';
+import MessageModel from 'src/models/message.model';
 
 @WebSocketGateway({
   cors: {
@@ -35,11 +36,11 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
 
       if (recipient) {
         recipient.socket.emit('send:message:response', {
-          message
+          message: new MessageModel(message)
         });
       }
       client.emit('send:message:response', {
-        message
+        message: new MessageModel(message)
       });
     }
 
@@ -48,7 +49,7 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     public async getAllMessages(client: Socket, payload: any): Promise<void> {      
       const messages = await this.messengerService.getAllMessages(payload.chatId);
       client.emit('get:message:response', {
-        result: messages.length > 0? messages: []
+        result: messages.length > 0? messages.map((message => new MessageModel(message))): []
       })
     }
 
